@@ -13,14 +13,17 @@ $ErrorActionPreference = 'Stop'
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 # ============================ CONFIG ============================
-# GitHub repos (owner/name). Update after publishing the repos.
-$RepoSpeedrunV14    = 'POPOV-GITHUB/red-alliance-speedrun-tools'        # plugin_v2  (game v1.4)
-$RepoSpeedrunV13    = 'POPOV-GITHUB/red-alliance-speedrun-tools-v1.3'   # plugin     (game v1.3)
-$RepoOptimizationFix = 'POPOV-GITHUB/red-alliance-v1.3-optimization-fix'
+# One repo hosts both speedrun mod versions as separate releases:
+#   v2.0.0 = game v1.4 plugin, v1.0.0 = game v1.3 plugin.
+# Pinned tags, NOT releases/latest — latest would always resolve to v2.x.
+$RepoSpeedrunMod     = 'animeliodas/red-alliance-speedrun-mod'
+$TagSpeedrunV14      = 'v2.0.0'
+$TagSpeedrunV13      = 'v1.0.0'
+$RepoOptimizationFix = 'animeliodas/red-alliance-v1.3-optimization-fix'
+$TagOptimizationFix  = 'v1.0.0'
 
-# Release asset file names (attach the raw DLLs as release assets).
-$AssetSpeedrunV14    = 'RedAllianceSpeedrun.dll'
-$AssetSpeedrunV13    = 'RedAllianceSpeedrun.dll'
+# Release asset file names (raw DLLs attached to the releases).
+$AssetSpeedrun        = 'RedAllianceSpeedrun.dll'
 $AssetOptimizationFix = 'RedAllianceOptimizationFix.dll'
 
 # BepInEx 5 (stable). x86/x64 chosen automatically from the game exe.
@@ -96,13 +99,13 @@ function Install-BepInEx($gameDir) {
     Write-Host 'BepInEx installed.' -ForegroundColor Green
 }
 
-function Install-Plugin($gameDir, $repo, $asset, $displayName) {
+function Install-Plugin($gameDir, $repo, $tag, $asset, $displayName) {
     $pluginsDir = Join-Path $gameDir 'BepInEx\plugins'
     if (-not (Test-Path $pluginsDir)) {
         New-Item -ItemType Directory -Force $pluginsDir | Out-Null
     }
     Write-Title "Installing $displayName"
-    $url = "https://github.com/$repo/releases/latest/download/$asset"
+    $url = "https://github.com/$repo/releases/download/$tag/$asset"
     Get-File $url (Join-Path $pluginsDir $asset) $asset
     Write-Host "$displayName installed." -ForegroundColor Green
 }
@@ -138,22 +141,22 @@ $choice = Read-Host 'Choice [1/2/3]'
 switch ($choice) {
     '1' {
         Install-BepInEx $gameDir
-        Install-Plugin $gameDir $RepoSpeedrunV14 $AssetSpeedrunV14 'Speedrun Tools (v1.4)'
+        Install-Plugin $gameDir $RepoSpeedrunMod $TagSpeedrunV14 $AssetSpeedrun 'Speedrun Mod (game v1.4)'
     }
     '2' {
         Install-BepInEx $gameDir
-        Install-Plugin $gameDir $RepoSpeedrunV13 $AssetSpeedrunV13 'Speedrun Tools (v1.3)'
+        Install-Plugin $gameDir $RepoSpeedrunMod $TagSpeedrunV13 $AssetSpeedrun 'Speedrun Mod (game v1.3)'
         Write-Host ''
         Write-Host 'The Optimization Fix removes the progressive freezes of v1.3' -ForegroundColor Yellow
         Write-Host '(the game stutters after 20-30 level loads without it).' -ForegroundColor Yellow
         $fix = Read-Host 'Install Optimization Fix too? (recommended) [Y/n]'
         if ($fix -notmatch '^[nN]') {
-            Install-Plugin $gameDir $RepoOptimizationFix $AssetOptimizationFix 'Optimization Fix (v1.3)'
+            Install-Plugin $gameDir $RepoOptimizationFix $TagOptimizationFix $AssetOptimizationFix 'Optimization Fix (v1.3)'
         }
     }
     '3' {
         Install-BepInEx $gameDir
-        Install-Plugin $gameDir $RepoOptimizationFix $AssetOptimizationFix 'Optimization Fix (v1.3)'
+        Install-Plugin $gameDir $RepoOptimizationFix $TagOptimizationFix $AssetOptimizationFix 'Optimization Fix (v1.3)'
     }
     default {
         Write-Host 'Unknown choice, nothing installed.' -ForegroundColor Red
