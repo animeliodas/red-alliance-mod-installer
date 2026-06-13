@@ -2,9 +2,10 @@
 # Installs BepInEx + the chosen plugin set into the Red Alliance game folder.
 #
 # Options:
-#   1. Red Alliance v1.4  -> Speedrun Tools v2 plugin
-#   2. Red Alliance v1.3  -> Speedrun Tools v1 plugin (+ optional Optimization Fix, recommended)
-#   3. Fix only (v1.3)    -> Optimization Fix plugin only
+#   1. Red Alliance v1.4    -> Speedrun Tools v2 plugin
+#   2. Red Alliance v1.3    -> Speedrun Tools v1 plugin (+ optional Optimization Fix, recommended)
+#   3. Fix only (v1.3)      -> Optimization Fix plugin only
+#   4. Crosshair editor     -> in-game crosshair editor (works with both game versions)
 #
 # Offline mode: if a 'payload' folder sits next to this script and contains the needed
 # files (plugin DLLs / BepInEx zip), they are used instead of downloading from GitHub.
@@ -21,10 +22,13 @@ $TagSpeedrunV14      = 'v2.0.0'
 $TagSpeedrunV13      = 'v1.0.0'
 $RepoOptimizationFix = 'animeliodas/red-alliance-v1.3-optimization-fix'
 $TagOptimizationFix  = 'v1.0.0'
+$RepoCrosshairEditor = 'animeliodas/red-alliance-crosshair-editor'
+$TagCrosshairEditor  = 'v1.0.0'
 
 # Release asset file names (raw DLLs attached to the releases).
 $AssetSpeedrun        = 'RedAllianceSpeedrun.dll'
 $AssetOptimizationFix = 'RedAllianceOptimizationFix.dll'
+$AssetCrosshairEditor = 'RedAllianceCrosshairEditor.dll'
 
 # BepInEx 5 (stable). x86/x64 chosen automatically from the game exe.
 $BepInExVersion = '5.4.23.5'
@@ -133,10 +137,11 @@ while (-not $gameDir) {
 
 Write-Host ''
 Write-Host 'What do you want to install?'
-Write-Host '  1. Red Alliance v1.4  - Speedrun Tools (new game version)'
-Write-Host '  2. Red Alliance v1.3  - Speedrun Tools (old game version)'
+Write-Host '  1. Red Alliance v1.4  - Speedrun Mod (new game version)'
+Write-Host '  2. Red Alliance v1.3  - Speedrun Mod (old game version)'
 Write-Host '  3. Fix only           - Optimization Fix for v1.3 (no speedrun tools)'
-$choice = Read-Host 'Choice [1/2/3]'
+Write-Host '  4. Crosshair editor   - in-game crosshair editor (any game version)'
+$choice = Read-Host 'Choice [1/2/3/4]'
 
 switch ($choice) {
     '1' {
@@ -157,6 +162,10 @@ switch ($choice) {
     '3' {
         Install-BepInEx $gameDir
         Install-Plugin $gameDir $RepoOptimizationFix $TagOptimizationFix $AssetOptimizationFix 'Optimization Fix (v1.3)'
+    }
+    '4' {
+        Install-BepInEx $gameDir
+        Install-Plugin $gameDir $RepoCrosshairEditor $TagCrosshairEditor $AssetCrosshairEditor 'Crosshair Editor'
     }
     default {
         Write-Host 'Unknown choice, nothing installed.' -ForegroundColor Red
